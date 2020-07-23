@@ -1,9 +1,41 @@
 import sys
+from math import sqrt
+
 import cv2
 
 # This code combines face detection with open CV's code for object tracking to detect and track a face automatically
 
 (major_ver, minor_ver, subminor_ver) = (cv2.getVersionString()).split('.')
+
+
+def choose_face(face_bounding_boxes, frame_dimensions):
+    """
+    Tries to choose a face when there could be multiple. It does this by considering the face scores, as well as
+    considering the closest to the frame_centre of the camera, seeing as the person of interest wants to be in the focus.
+
+    :param face_bounding_boxes: all possible faces detected
+    :param frame_dimensions: the dimensions of the frame, used to determine the frame_centre point
+    :return: the face chosen for tracking
+    """
+
+    if len(face_bounding_boxes) == 0:
+        raise ValueError("At least one bounding box must be provided")
+
+    frame_centre = (frame_dimensions[0] / 2, frame_dimensions[1] / 2)
+
+    # closest bounding box to the frame_centre
+    nearest_candidate = (999999999, None)
+
+    for i in range(0, len(face_bounding_boxes)):
+        (x, y, w, h) = face_bounding_boxes[i]
+        box_centre = (x + (w/2), y + (h/2))
+
+        dist = sqrt(pow(box_centre[0] - frame_centre[0], 2) + pow(box_centre[1] - frame_centre[1], 2))
+
+        if dist < nearest_candidate[0]:
+            nearest_candidate = dist, (x, y, w, h)
+
+    return nearest_candidate[1]
 
 
 def detect_face(video_capture):
@@ -24,9 +56,16 @@ def detect_face(video_capture):
         faces = face_cascade.detectMultiScale(greyscale, 1.1, 4)
         print("Detected %d faces. Expects 1 face" % len(faces))
 
-        for (x, y, w, h) in faces:
-            # todo determine which face to choose when there are multiple
-            return x, y, w, h
+        if len(faces) != 0:
+            try:
+                frame_dimensions = (
+                    int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                    int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                )
+                return choose_face(faces, frame_dimensions)
+            except ValueError:
+                # there were faces but none were chosen
+                continue
 
         k = cv2.waitKey(1) & 0xff
         if k == 27:
