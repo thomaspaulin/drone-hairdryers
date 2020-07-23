@@ -29,4 +29,4 @@ At first Open CV's pre-trained Haar Cascade Classifier will be used to detect th
 ## Object Tracking
 Initially Open CV's KCF algorithm was used because it provides an acceptable compromise between speed and accuracy, and because occlusions won't be considered.
 
-KCF is a two dimensional tracker, however, and to obtain the desired drone motion a three dimensional tracker is required such as the model devised by (G. Brazil, G. Pons-Moll, X. Liu, and B. Schiele)[http://cvlab.cse.msu.edu/pdfs/brazil_pons-moll_liu_Schiele_eccv2020.pdf].
+KCF is a two dimensional tracker, however, and to obtain the desired drone motion a three dimensional tracker is required such as the model devised by [G. Brazil, G. Pons-Moll, X. Liu, and B. Schiele](http://cvlab.cse.msu.edu/pdfs/brazil_pons-moll_liu_Schiele_eccv2020.pdf).
